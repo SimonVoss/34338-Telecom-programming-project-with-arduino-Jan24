@@ -1,9 +1,28 @@
-void setup() {
-  // put your setup code here, to run once:
+const int Fan_PIN = 5;  //Input at D1
 
+int Fan_PWM = 0;    //Fan speed between 0 and 255
+int Fan_Speed = 0;  //Fan speed percentage %
+
+void setup() {
+
+  Serial.begin(115200);
+
+  pinMode(TempHum_Pin, OUTPUT);  //Pin Setup
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
+  FanControl();  //Function that sends out a PWM signal to the MOSFET
+}
+
+void FanControl() {
+
+  Fan_PWM = map(Fan_Speed, 0, 100, 0, 255);
+
+  analogWrite(Fan_PIN, Fan_PWM);
+
+  Serial.print("Fan strength is at: ");
+  Serial.print(Fan_Speed);
+
+}
 }
