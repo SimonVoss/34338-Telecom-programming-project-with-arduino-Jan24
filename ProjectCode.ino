@@ -1,8 +1,8 @@
 /*
 This code is wirtten by:
 s214405 - Simon Voss
-s205937 Sigurd Bernstein
-s
+s205937 - Sigurd Bernstein
+s214412 - Matthias Winther
 s
 s
 s
