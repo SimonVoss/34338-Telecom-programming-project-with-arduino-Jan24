@@ -17,7 +17,7 @@ void loop() {
 
 void FanControl() {
 
-  Fan_PWM = map(Fan_Speed, 0, 100, 0, 255);
+  Fan_PWM = map(Fan_Speed, 0, 100, 0, 255); //Converting a percentage to 8bit for PWM signal to Fan
 
   analogWrite(Fan_PIN, Fan_PWM);
 
