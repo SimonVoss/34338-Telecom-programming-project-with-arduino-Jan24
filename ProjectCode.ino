@@ -13,7 +13,7 @@ Date 09 Jan 2024
 //The code is spesific for the ESP8266 Node 0.9 MCU , pin numbers and other inputs functions might have to be changed for other microcontrollers
 
 //Liabrys
-#include <Bonezegei_DHT11.h>
+#include <Bonezegei_DHT11.h> // Download: Bonezegei_DHT11 by Bonezegei (JofelBatutay)
 
 //GPIO pins used
 const int TempHum_Pin = 2;
