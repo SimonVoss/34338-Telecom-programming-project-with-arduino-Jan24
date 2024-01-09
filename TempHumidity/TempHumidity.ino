@@ -26,7 +26,7 @@ void TempHumModule() {
   unsigned long currentMillis = millis();
 
   // Check if the specified interval has elapsed
-  if (currentMillis - previousMillis >= interval) {
+  if (currentMillis - previousMillis >= 1001) {
     if (dht.getData()) {               // get All data from DHT11
       Celcius = dht.getTemperature();  // return temperature in celsius
       Humidity = dht.getHumidity();    // return humidity
