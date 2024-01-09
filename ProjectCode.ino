@@ -28,6 +28,8 @@ Bonezegei_DHT11 dht(TempHum_Pin);
 
 //RFID
 
+//Web Server
+
 //Light sensor
 
 //Fan 
@@ -47,6 +49,8 @@ dht.begin();
 
 //RFID
 
+//Web Server
+  
 //Light sensor
 
 //Fan 
