@@ -81,9 +81,9 @@ void TempHumModule() {
 
 void FanControl() {
 
-  Fan_PWM = map(Fan_Speed, 0, 100, 0, 255);
+  Fan_PWM = map(Fan_Speed, 0, 100, 0, 255); //From percentage % to 8 bit 0 - 255
 
-  analogWrite(Fan_Pin, Fan_PWM);
+  analogWrite(Fan_Pin, Fan_PWM); //Writing out to the MOSFET gate
 }
 
 void ClimateControl(float Desired) {
@@ -98,7 +98,7 @@ void ClimateControl(float Desired) {
   } else if (Celcius - Desired > 2) {                            //Temp diference in celcius
     Fan_Speed = 60;                                              //Input in percentage
   } else if (1 < Celcius - Desired && Celcius - Desired <= 2) {  //Temp diference in celcius
-    Fan_Speed = 50;                                              //Input in percentage
+    Fan_Speed = 40;                                              //Input in percentage
   } else if (1 <= Celcius - Desired) {                           //Temp diference in celcius
     Fan_Speed = 0;                                               //Input in percentage
   }
