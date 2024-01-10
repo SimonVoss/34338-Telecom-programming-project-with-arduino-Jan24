@@ -23,7 +23,6 @@ const int Fan_Pin = 5;
 // Variables - Calls
 
 //Temp humidity sensor
-int previousMillis = 0;
 float Celcius, Humidity = 0;
 Bonezegei_DHT11 dht(TempHum_Pin);
 
@@ -87,8 +86,6 @@ void FanControl() {
 }
 
 void ClimateControl(float Desired) {
-  unsigned long currentMillis = millis();
-  //if (currentMillis - previousMillis >= 1001) {
   TempHumModule();  //This function should be called every loop
 
   if (Celcius - Desired > 5) {                                   //Temp diference in celcius
@@ -104,9 +101,6 @@ void ClimateControl(float Desired) {
   }
 
   FanControl();  //Function that sends out a PWM signal to the MOSFET
-  //}
-  // Update the previousMillis for the next iteration
-  //previousMillis = currentMillis;
 }
 
 
