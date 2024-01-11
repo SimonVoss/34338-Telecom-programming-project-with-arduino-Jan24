@@ -68,7 +68,6 @@ void setup() {
   dht.begin();  //Libary initialicer
 
   //RFID
-  Serial.begin(9600);
   SPI.begin();      // Init SPI bus
   rfid.PCD_Init();  // Init MFRC522
   myservo.attach(servoPin);
