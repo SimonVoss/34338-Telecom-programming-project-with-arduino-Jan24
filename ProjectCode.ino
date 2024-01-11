@@ -17,7 +17,7 @@ Date 09 Jan 2024
 #include <SPI.h>
 #include <MFRC522.h>  // Download: MFRC522 by - GithubCommunity
 #include "Servo.h"    // Download: Servo by - Michael Margolis, Arduino
-
+#include <SoftwareSerial.h> // Download: SoftwareSerial by - Armin Joachimsmeyer
 
 //GPIO pins used
 #define servoPin 0
@@ -31,10 +31,10 @@ Date 09 Jan 2024
 
 // Variables - Calls
 
-//Temp humidity sensor
+//Temp humidity sensor / Fan
 float Celcius, Humidity = 0;
 Bonezegei_DHT11 dht(TempHum_Pin);
-
+SoftwareSerial espSerial(3, 1);  // RX, TX
 
 //RFID
 MFRC522 rfid(SS_PIN, RST_PIN);  // Instance of the class
@@ -84,9 +84,10 @@ void setup() {
   Serial.begin(115200);
 
 
-  //Temp humidity sensor
+  //Temp humidity sensor / Fan
   pinMode(TempHum_Pin, INPUT);
   dht.begin();  //Libary initialicer
+  espSerial.begin(115200); //Libary initialicer
 
   //RFID
   SPI.begin();      // Init SPI bus
@@ -238,10 +239,7 @@ void TempHumModule() {
 }
 
 void FanControl() {
-
-  Fan_PWM = map(Fan_Speed, 0, 100, 0, 255);  //From percentage % to 8 bit 0 - 255
-
-  analogWrite(Fan_Pin, Fan_PWM);  //Writing out to the MOSFET gate
+  espSerial.println(fanSpeed);  // Send the fan speed to Arduino
 }
 
 void ClimateControl(float Desired) {
