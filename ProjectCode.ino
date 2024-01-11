@@ -17,7 +17,7 @@ Date 09 Jan 2024
 #include <SPI.h>
 #include <MFRC522.h>  // Download: MFRC522 by - GithubCommunity
 #include "Servo.h"    // Download: Servo by - Michael Margolis, Arduino
-#include <SoftwareSerial.h> // Download: SoftwareSerial by - Armin Joachimsmeyer
+
 
 //GPIO pins used
 #define servoPin 0
@@ -31,10 +31,10 @@ Date 09 Jan 2024
 
 // Variables - Calls
 
-//Temp humidity sensor / Fan
+//Temp humidity sensor
 float Celcius, Humidity = 0;
 Bonezegei_DHT11 dht(TempHum_Pin);
-SoftwareSerial espSerial(3, 1);  // RX, TX
+
 
 //RFID
 MFRC522 rfid(SS_PIN, RST_PIN);  // Instance of the class
@@ -44,33 +44,12 @@ byte nuidPICC[4]; // Init array that will store new NUID
 String previousId = "";
 int idMatch = 0;
 
-//ID
-struct ID {
-  int Temp;       //Temperature in celcius
-  int Light[3];   //How the light is to be
-  char id[8];     //ID of the card
-  char Name[10];  // Name of the card holder
-};
-
-ID DEF;
-ID Emil;
-ID Lukas;
-ID Matthias;
-ID Sigurd;
-ID Simon;
-ID Thomas;
 
 //Web Server
 
 
 //Light sensor
-int R_old = 0;
-int G_old = 0;
-int B_old = 0;
-bool dark = false;
-static int RLED = 10;
-static int GLED = 5;
-static int BLED = 16;
+
 //Fan
 int Fan_PWM = 0;       //Fan speed between 0 and 255
 int Fan_Speed = 0;     //Fan speed percentage %
@@ -84,12 +63,12 @@ void setup() {
   Serial.begin(115200);
 
 
-  //Temp humidity sensor / Fan
+  //Temp humidity sensor
   pinMode(TempHum_Pin, INPUT);
   dht.begin();  //Libary initialicer
-  espSerial.begin(115200); //Libary initialicer
 
   //RFID
+
   SPI.begin();      // Init SPI bus
   rfid.PCD_Init();  // Init MFRC522
   myservo.attach(servoPin);
@@ -102,17 +81,7 @@ void setup() {
   //Web Server
 
   //Light sensor
-  pinMode(A0, INPUT);
-  pinMode(RLED, OUTPUT);
-  pinMode(GLED, OUTPUT);
-  pinMode(BLED, OUTPUT);
-  Thomas.Light[0] = 127;
-  Thomas.Light[1] = 255;
-  Thomas.Light[2] = 255;
-  DEF.Light[0] = 0;
-  DEF.Light[1] = 0;
-  DEF.Light[2] = 0;
-  
+
   //Fan
   pinMode(Fan_Pin, OUTPUT);  //Pin Setup
 
@@ -214,10 +183,8 @@ void doorLock(bool isTrue, int idMatch) {
   if (isTrue == true) {
     if (idMatch % 2 == 1) {
       myservo.write(0);
-      setLight(DEF);
     } else {
       myservo.write(180);
-      checkLight();
     }
   } else {
     myservo.write(0);
@@ -239,7 +206,10 @@ void TempHumModule() {
 }
 
 void FanControl() {
-  espSerial.println(fanSpeed);  // Send the fan speed to Arduino
+
+  Fan_PWM = map(Fan_Speed, 0, 100, 0, 255);  //From percentage % to 8 bit 0 - 255
+
+  analogWrite(Fan_Pin, Fan_PWM);  //Writing out to the MOSFET gate
 }
 
 void ClimateControl(float Desired) {
@@ -268,57 +238,4 @@ void SerialPrint() {
   Serial.print(Celcius);
   Serial.print(" Humidity: ");
   Serial.println(Humidity);
-}
-//Light functions
-void checkLight(){
-  if(lightSensor()<4){
-    dark=true;
-  }else{
-    dark=false;
-  }
-}
-
-void Lights(struct ID name) {
-  //The light is activated if the sensor detects
-  if (dark) {
-    setLight(name);
-  }
-}
-
-float lightSensor() {
-  //This function converts value of the analog pin to a number between 0 and 100
-  float light_digital = analogRead(A0);
-  float light = 100*light_digital/1023;
-  return light;
-}
-
-void setLight(struct ID name) {
-  long previousMillis = 0;
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis > 2) { 
-    //A 2 ms delay is added to get gradual increase of lighting
-    previousMillis = currentMillis;
-    if ((R_old != name.Lights[0]) || (G_old != name.Lights[1]) || (B_old != name.Lights[2])) {
-      // if statements are run to check each value to make sure it matches if not then 1 is either added or subtracted
-      if (R_old > name.Lights[0]) {
-        R_old -= 1;
-      } else if (R_old < name.Lights[0]) {
-        R_old += 1;
-      }
-      if (G_old > name.Lights[1]) {
-        G_old -= 1;
-      } else if (G_old < name.Lights[1]) {
-        G_old += 1;
-      }
-      if (B_old > name.Lights[2]) {
-        B_old -= 1;
-      } else if (B_old < name.Lights[2]) {
-        B_old += 1;
-      }
-      // lastly the colors are defined 
-      analogWrite(RLED, R_old);
-      analogWrite(GLED, G_old);
-      analogWrite(BLED, B_old);
-    }
-  }
 }
