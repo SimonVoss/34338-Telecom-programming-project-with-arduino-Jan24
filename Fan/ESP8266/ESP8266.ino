@@ -4,7 +4,7 @@ SoftwareSerial espSerial(3, 1);  // RX, TX
 int fanSpeed = 100;              // Example fan speed value
 void setup() {
   // Start the ESP8266 serial communication at 9600 baud rate
-  espSerial.begin(9600);
+  espSerial.begin(115200);
 }
 
 void loop() {
