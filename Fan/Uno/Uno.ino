@@ -1,11 +1,14 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial arduinoSerial(10, 11); // RX, TX (choose pins that are available)
-int Fan_Speed;
+#define Fan_Pin 3
+
+int Fan_Speed, Fan_PWM = 0;
+
+SoftwareSerial arduinoSerial(0, 1); // RX, TX (choose pins that are available)
 
 void setup() {
   // Start the Arduino serial communication at 9600 baud rate
-  arduinoSerial.begin(9600);
+  arduinoSerial.begin(115200);
 }
 
 void loop() {
