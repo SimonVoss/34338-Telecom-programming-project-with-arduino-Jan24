@@ -13,19 +13,20 @@ Date 09 Jan 2024
 //The code is spesific for the ESP8266 Node 0.9 MCU , pin numbers and other inputs functions might have to be changed for other microcontrollers
 
 //Liabrys
-#include <Bonezegei_DHT11.h>  // Download: Bonezegei_DHT11 by Bonezegei (JofelBatutay)
+#include <Bonezegei_DHT11.h>  // Download: Bonezegei_DHT11 by - Bonezegei (JofelBatutay)
 #include <SPI.h>
-#include <MFRC522.h>
-#include "Servo.h"
+#include <MFRC522.h>  // Download: MFRC522 by - GithubCommunity
+#include "Servo.h"    // Download: Servo by - Michael Margolis, Arduino
 
-// Define the servo pin:
-#define servoPin 0
-#define RST_PIN         4          // Configurable, see typical pin layout above
-#define SS_PIN          15         // Configurable, see typical pin layout above
 
 //GPIO pins used
-const int TempHum_Pin = 2;
-const int Fan_Pin = 5;
+#define servoPin 0
+#define RST_PIN 4  // Configurable, see typical pin layout above
+#define SS_PIN 15  // Configurable, see typical pin layout above
+#define TempHum_Pin 2
+#define Fan_Pin 5
+
+
 
 
 // Variables - Calls
@@ -34,25 +35,25 @@ const int Fan_Pin = 5;
 float Celcius, Humidity = 0;
 Bonezegei_DHT11 dht(TempHum_Pin);
 
+
 //RFID
-MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
-
-MFRC522::MIFARE_Key key; 
-
-// Init array that will store new NUID 
-byte nuidPICC[4];
-
+MFRC522 rfid(SS_PIN, RST_PIN);  // Instance of the class
+MFRC522::MIFARE_Key key;
+Servo myservo;
+byte nuidPICC[4]; // Init array that will store new NUID
 String previousId = "";
 int idMatch = 0;
 
+
 //Web Server
+
 
 //Light sensor
 
 //Fan
-int Fan_PWM = 0;    //Fan speed between 0 and 255
-int Fan_Speed = 0;  //Fan speed percentage %
-float Desired = 24.5; //Temp variable 
+int Fan_PWM = 0;       //Fan speed between 0 and 255
+int Fan_Speed = 0;     //Fan speed percentage %
+float Desired = 24.5;  //Temp variable
 //Door - actuator
 
 //--------------------------------------------------------------------
@@ -68,15 +69,15 @@ void setup() {
 
   //RFID
   Serial.begin(9600);
-  SPI.begin(); // Init SPI bus
-  rfid.PCD_Init(); // Init MFRC522 
+  SPI.begin();      // Init SPI bus
+  rfid.PCD_Init();  // Init MFRC522
   myservo.attach(servoPin);
   myservo.write(0);
 
   for (byte i = 0; i < 6; i++) {
     key.keyByte[i] = 0xFF;
   }
-  
+
   //Web Server
 
   //Light sensor
@@ -89,20 +90,20 @@ void setup() {
 
 void loop() {
   ClimateControl(Desired);
-  SerialPrint(); //Print to maintenance
+  SerialPrint();  //Print to maintenance
   RFID();
 }
 
 //-----------------------------------------RFID---------------------------------------------------------------------
-void RFID(){
-    String idWhitelist[10] = {"3063ed22","3063ed22","3063ed22","3063ed22","3063ed22","3063ed22","3063ed22","3063ed22","3063ed22","3063ed22"};
+void RFID() {
+  String idWhitelist[10] = { "3063ed22", "3063ed22", "3063ed22", "3063ed22", "3063ed22", "3063ed22", "3063ed22", "3063ed22", "3063ed22", "3063ed22" };
 
   // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
-  if ( ! rfid.PICC_IsNewCardPresent())
+  if (!rfid.PICC_IsNewCardPresent())
     return;
 
   // Verify if the NUID has been read
-  if ( ! rfid.PICC_ReadCardSerial())
+  if (!rfid.PICC_ReadCardSerial())
     return;
 
   //Serial.println(F("PICC type: "));
@@ -110,9 +111,7 @@ void RFID(){
   //Serial.println(rfid.PICC_GetTypeName(piccType));
 
   // Check is the PICC of Classic MIFARE type
-  if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI &&  
-    piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
-    piccType != MFRC522::PICC_TYPE_MIFARE_4K) {
+  if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI && piccType != MFRC522::PICC_TYPE_MIFARE_1K && piccType != MFRC522::PICC_TYPE_MIFARE_4K) {
     Serial.println(F("Your tag is not of type MIFARE Classic."));
     return;
   }
@@ -121,7 +120,7 @@ void RFID(){
   for (byte i = 0; i < 4; i++) {
     nuidPICC[i] = rfid.uid.uidByte[i];
   }
-  
+
   String id = hex2String(rfid.uid.uidByte, rfid.uid.size);
 
   if (id.equals(previousId)) {
@@ -135,9 +134,9 @@ void RFID(){
   printHex(rfid.uid.uidByte, rfid.uid.size);
   Serial.println();
 
-  bool isTrue = checkId(id,idWhitelist);
+  bool isTrue = checkId(id, idWhitelist);
 
-  doorLock(isTrue,idMatch);
+  doorLock(isTrue, idMatch);
 
   // Halt PICC
   rfid.PICC_HaltA();
@@ -157,36 +156,37 @@ String hex2String(byte *buffer, byte bufferSize) {
   String userid;
   for (byte i = 0; i < rfid.uid.size; i++) {
     userid += String(rfid.uid.uidByte[i], HEX);
-  } return userid;
+  }
+  return userid;
 }
 
-bool checkId(String id, String *whitelist){
+bool checkId(String id, String *whitelist) {
   bool isTrue = false;
-  for (int i = 0; i < 10 ; i++){
-    if (id.equals(whitelist[i])){
+  for (int i = 0; i < 10; i++) {
+    if (id.equals(whitelist[i])) {
       isTrue = true;
       break;
     } else {
       isTrue = false;
     }
   }
-  if (isTrue == true){
+  if (isTrue == true) {
     Serial.println("Access Granted!");
-  } else{
+  } else {
     Serial.println("Access Denied!");
   }
   return isTrue;
 }
 
-void doorLock(bool isTrue, int idMatch){
+void doorLock(bool isTrue, int idMatch) {
   Serial.println(idMatch);
-  if(isTrue == true ){
-    if(idMatch % 2 == 1){
+  if (isTrue == true) {
+    if (idMatch % 2 == 1) {
       myservo.write(0);
-    } else{
+    } else {
       myservo.write(180);
     }
-  } else{
+  } else {
     myservo.write(0);
   }
 }
@@ -207,9 +207,9 @@ void TempHumModule() {
 
 void FanControl() {
 
-  Fan_PWM = map(Fan_Speed, 0, 100, 0, 255); //From percentage % to 8 bit 0 - 255
+  Fan_PWM = map(Fan_Speed, 0, 100, 0, 255);  //From percentage % to 8 bit 0 - 255
 
-  analogWrite(Fan_Pin, Fan_PWM); //Writing out to the MOSFET gate
+  analogWrite(Fan_Pin, Fan_PWM);  //Writing out to the MOSFET gate
 }
 
 void ClimateControl(float Desired) {
